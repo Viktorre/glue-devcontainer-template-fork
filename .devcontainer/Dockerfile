@@ -1,15 +1,17 @@
-ARG GLUE_VERSION="4.0.0"
-FROM amazon/aws-glue-libs:glue_libs_${GLUE_VERSION}_image_01
+FROM ubuntu:22.04
 
 ARG USER=glue_user
+ARG POETRY_VERSION=1.4.0
+
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip python3-venv \
+    curl unzip git openjdk-11-jdk build-essential \
+    && adduser --disabled-password --gecos "" $USER
+
 USER $USER
-
-# Poetry installation
-ARG HOME="/home/$USER"
-ARG POETRY_VERSION="none"
-
+ENV HOME="/home/$USER"
 ENV PATH="${HOME}/.local/bin:$PATH"
 
-RUN if [ "${POETRY_VERSION}" != "none" ]; then  echo "Installing poetry" \
-    && curl -sSL https://install.python-poetry.org | POETRY_VERSION=${POETRY_VERSION} python3 - ; \
-    fi
+RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=${POETRY_VERSION} python3 -
+
+WORKDIR /home/$USER/workspace
